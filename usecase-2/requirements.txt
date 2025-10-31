@@ -1,0 +1,15 @@
+# Web Framework
+Flask
+
+# LangChain Core and Integrations
+langchain
+langchain-openai
+langchain-pinecone
+langchain-text-splitters
+
+# Vector Database Client
+pinecone-client
+
+# API Clients & Utilities
+google-search-results
+python-dotenv

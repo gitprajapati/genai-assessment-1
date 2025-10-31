@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Career Advisor</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; background-color: #f7f7f7; }
+        .header { background-color: #2c3e50; color: white; padding: 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .chat-container { flex: 1; overflow-y: auto; padding: 1rem; }
+        .message { max-width: 80%; margin: 0.5rem; padding: 0.8rem 1rem; border-radius: 10px; line-height: 1.5; }
+        .user-message { background-color: #3498db; color: white; align-self: flex-end; margin-left: auto; }
+        .bot-message { background-color: #ecf0f1; color: #2c3e50; align-self: flex-start; border: 1px solid #ddd; white-space: pre-wrap; }
+        .input-area { display: flex; padding: 1rem; border-top: 1px solid #ddd; background-color: #fff; }
+        input[type="text"] { flex: 1; padding: 0.8rem; border: 1px solid #ccc; border-radius: 20px; outline: none; }
+        button { padding: 0.8rem 1.5rem; border: none; background-color: #2c3e50; color: white; border-radius: 20px; margin-left: 0.5rem; cursor: pointer; }
+        button:disabled { background-color: #95a5a6; }
+        .loader { text-align: center; color: #7f8c8d; }
+        h3 { border-bottom: 2px solid #3498db; padding-bottom: 5px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="header"><h1>AI Career Advisor</h1></div>
+    <div class="chat-container" id="chat-container">
+        <div class="message bot-message">Hello! Tell me about your career goals. For example, "I am a software engineer and want to transition to a product manager role."</div>
+    </div>
+    <form class="input-area" id="message-form">
+        <input type="text" id="message-input" placeholder="What are your career aspirations?" autocomplete="off">
+        <button type="submit" id="send-button">Send</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('message-form');
+        const input = document.getElementById('message-input');
+        const button = document.getElementById('send-button');
+        const chatContainer = document.getElementById('chat-container');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            // Display user message
+            addMessage(messageText, 'user-message');
+            input.value = '';
+            button.disabled = true;
+
+            // Display loading indicator
+            const loaderId = 'loader-' + Date.now();
+            addMessage('Thinking...', 'bot-message loader', loaderId);
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+
+                const data = await response.json();
+                const loaderElement = document.getElementById(loaderId);
+
+                if (response.ok) {
+                    // Update the loader message with the actual response
+                    loaderElement.innerHTML = formatResponse(data.response);
+                    loaderElement.classList.remove('loader');
+                } else {
+                    loaderElement.innerText = `Error: ${data.error || 'Something went wrong.'}`;
+                }
+
+            } catch (error) {
+                document.getElementById(loaderId).innerText = 'Error: Could not connect to the server.';
+            } finally {
+                button.disabled = false;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        });
+
+        function addMessage(text, className, id = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${className}`;
+            messageDiv.innerText = text;
+            if (id) messageDiv.id = id;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function formatResponse(text) {
+            // A simple markdown-like formatter for the response
+            return text
+                .replace(/### (.*?)\n/g, '<h3>$1</h3>')
+                .replace(/\*\* (.*?)\n/g, '<p><strong>$1</strong></p>')
+        }
+    </script>
+</body>
+</html>
