@@ -1,0 +1,12 @@
+streamlit
+langchain
+langchain-community
+pypdf
+langchain-huggingface
+sentence-transformers
+# huggingface_hub
+langchain-text-splitters
+langchain-pinecone
+langchain-openai
+python-dotenv
+# pinecone
