@@ -144,8 +144,7 @@ def chat():
         # Part 2: Check Pinecone for a cached response
         print(f"Checking cache in Pinecone for role_id: {role_id}")
         fetched_vectors = pinecone_index.fetch(ids=[role_id])
-        
-        # --- FIX IS HERE ---
+       
         # Access the response using dot notation for the modern pinecone-client
         if fetched_vectors.vectors and role_id in fetched_vectors.vectors:
             print("Cache hit! Retrieving from Pinecone.")
